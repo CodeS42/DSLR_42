@@ -12,22 +12,24 @@ house_colors = {
 
 
 def ft_corr(x, y):
-    valid_pair = [(x_val, y_val) for x_val, y_val in zip(x, y) if pd.notna(x_val) and pd.notna(y_val)]
+    valid_pair = [(x_val, y_val) for x_val, y_val in zip(x, y)
+                  if pd.notna(x_val) and pd.notna(y_val)]
     pairs = len(valid_pair)
     if pairs == 0:
         return 0
-    
+
     x_valid, y_valid = zip(*valid_pair)
     mean_x = sum(x_valid) / pairs
     mean_y = sum(y_valid) / pairs
 
-    num = sum((x_val - mean_x) * (y_val - mean_y) for x_val, y_val in zip(x_valid, y_valid)) # covariance
+    num = sum((x_val - mean_x) * (y_val - mean_y) for x_val,
+              y_val in zip(x_valid, y_valid))   # covariance
     variance_x = sum((x_val - mean_x) ** 2 for x_val in x_valid)
     variance_y = sum((y_val - mean_y) ** 2 for y_val in y_valid)
     den = math.sqrt(variance_x * variance_y)
     if den == 0:
         return 0
-    
+
     return num / den
 
 

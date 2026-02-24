@@ -21,7 +21,8 @@ def ft_count(df, cols):
 def ft_mean(df, count_lst, cols):
     mean_lst = ["Mean"]
     for col, nb_values in zip(range(cols), count_lst):
-        result = sum(nb for nb in df.iloc[:, col] if not pd.isna(nb)) / nb_values
+        result = sum(nb for nb in df.iloc[:, col]
+                     if not pd.isna(nb)) / nb_values
         mean_lst.append(result)
     return mean_lst
 
@@ -127,7 +128,8 @@ def analyze_csv(df):
     max_lst = ft_max(df, df.shape[1])
     nan_lst = ft_nan(df, df.shape[1])
 
-    return [count_lst, mean_lst, std_lst, min_lst, q25_lst, q50_lst, q75_lst, max_lst, nan_lst]
+    return [count_lst, mean_lst, std_lst, min_lst,
+            q25_lst, q50_lst, q75_lst, max_lst, nan_lst]
 
 
 def print_statistics(titles, stats):
@@ -144,7 +146,7 @@ def print_statistics(titles, stats):
                 print(f"{data:<10}", end="")
             else:
                 data = f"{data:.6f}"
-                if len_title == None or len_title <= 14:
+                if len_title is None or len_title <= 14:
                     print(f" {data:>14} ", end="")
                 else:
                     print(f" {data:>{len_title}} ", end="")
@@ -160,6 +162,7 @@ def main():
         df = pd.concat([df.iloc[:, 0:1], df.iloc[:, 6:]], axis=1)
         stats = analyze_csv(df)
         print_statistics(df.columns, stats)
+
     except Exception as e:
         print(f"Error: {e}")
 

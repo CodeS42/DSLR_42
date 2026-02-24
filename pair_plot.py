@@ -1,8 +1,9 @@
-import pandas as pd
-import matplotlib.pyplot
-matplotlib.use("TkAgg")
-import matplotlib.pyplot as plt
 import sys
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("TkAgg")
+
 
 house_colors = {
     "Gryffindor": "red",
@@ -31,10 +32,9 @@ def display_pair_plot(df):
                 for house in houses:
                     data = df[df[label_col] == house]
                     axs[i, j].hist(data[features[i]],
-                    label=house,
-                    alpha=0.3,
-                    color=house_colors[house],
-                    )
+                                   label=house,
+                                   alpha=0.3,
+                                   color=house_colors[house])
             else:
                 for house in houses:
                     data = df[df[label_col] == house]
@@ -44,7 +44,7 @@ def display_pair_plot(df):
                         label=house,
                         alpha=0.3,
                         color=house_colors[house],
-                        s=2,
+                        s=2
                     )
             if j == 0:
                 axs[i, j].set_ylabel(features[i], fontsize=8)
@@ -64,12 +64,13 @@ def main():
     try:
         if not len(sys.argv) == 1:
             raise SystemExit("Wrong number of arguments.")
-        
+
         df = pd.read_csv("dataset_train.csv", index_col="Index")
         display_pair_plot(df)
-    
+
     except Exception as e:
         print(f"Error: {e}")
+
 
 if __name__ == "__main__":
     main()
