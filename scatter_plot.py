@@ -37,13 +37,15 @@ def display_scatter_plot(df):
     if "Index" in num_col:
         num_col.remove("Index")
 
-    corr_max = 0
+    # corr_max = 0
+    corr_max = -1
     feature_corr = None
     for i in range(len(num_col)):
         for j in range(i + 1, len(num_col)):
             f1, f2 = num_col[i], num_col[j]
             corr_val = ft_corr(df[f1], df[f2])
-            if abs(corr_val) > corr_max:
+            # if abs(corr_val) > corr_max:
+            if corr_val > corr_max:
                 corr_max = abs(corr_val)
                 feature_corr = (f1, f2)
             # print(f"{f1} vs {f2} | corr: {corr_val:0.5f}")
