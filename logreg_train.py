@@ -1,6 +1,8 @@
 import sys
 import pandas as pd
 import numpy as np
+import json as js
+import matplotlib.pyplot as plt
 
 # z -> multi matri
 def sigmoid(z):
@@ -63,6 +65,9 @@ class logisticRegression:
         X = X.to_numpy()
         y = target.to_numpy().reshape(-1, 1)
 
+        self.X_train = X
+        self.Y_train = y
+
         nb_features = X.shape[1]
         self.theta = np.zeros((nb_features, 1))
         cost_history = []
@@ -71,21 +76,28 @@ class logisticRegression:
             self.theta = gradient_descent(learning_rate, self.theta, X, y)
             if i % 200 == 0:
                 cost_history.append(cost_function(X, y, self.theta).item())
+                # cost = cost_function(X, y, self.theta).item()
+                # print(f"iteration {i:5d} | cost = {cost:.6f}")
+                # cost_history.append(cost)
         
         return cost_history
 
+
 def main():
     if len(sys.argv) != 2:
-        print("Error")
-        return 1
+        raise SystemExit("Wrong number of arguments.")
     
     path = sys.argv[1]
     df = pd.read_csv(path).dropna()
 
-    feature_names = (
-        df.select_dtypes(include=np.number).drop(columns=["Index"]).columns
-    )
-    X_df = df[feature_names]
+    # feature_names = (
+    #     df.select_dtypes(include=np.number).drop(columns=["Index"]).columns
+    # )
+    all_features = df.select_dtypes(include=np.number).drop(columns=["Index"]).columns
+    drop_features = ["Arithmancy", "Potions", "Transfiguration", "Care of Magical Creatures"]
+    selected_features = all_features.drop(drop_features)
+    X_df = df[selected_features]
+
     target = df["Hogwarts House"]
     houses = [
         "Gryffindor",
@@ -93,32 +105,58 @@ def main():
         "Hufflepuff",
         "Ravenclaw"
     ]
+
     final_theta = {}
+    model_stat = {}
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    axes = axes.ravel()
 
-    for house in houses:
+    for i, house in enumerate(houses):
         model = logisticRegression()
-        binary_target = (target == house).astype(int)
+        binary_target = (target == house).astype(int) # one vs all
 
-        model.fit(
+        history_cost = model.fit(
             X_df,
             binary_target,
             learning_rate=0.05,
             iterations=3000
         )
-        final_theta[house] = model.theta.flatten()
-    feature_labels = ["bias"] + list(feature_names)
+        final_theta[house] = model.theta.flatten().tolist()
+        if not model_stat:
+            model_stat['feature_mean'] = model.feature_mean
+            model_stat['feature_std'] = model.feature_std
+        
+        axes[i].plot(
+            range(0, len(history_cost) * 300, 300),
+            history_cost
+        )
+        axes[i].set_title(f"cost function - {house}")
+        axes[i].set_xlabel("iterations")
+        axes[i].set_ylabel("cost")
+        axes[i].grid(True)
 
-    print("")
-    for house in houses:
-        print(f"\n=== {house} ===")
-        weights = list(zip(feature_labels, final_theta[house]))
-        weights.sort(key=lambda x:abs(x[1]), reverse=True)
+    # feature_labels = ["bias"] + list(feature_names)
+    # print("")
+    # for house in houses:
+    #     print(f"\n=== {house} ===")
+    #     weights = list(zip(feature_labels, final_theta[house]))
+    #     weights.sort(key=lambda x:abs(x[1]), reverse=True)
 
-        for feature, weight in weights:
-            print(
-                f"{feature:30} {weight:10.6f}"
-                f"  abs ={abs(weight):12.6f}"
-            )
+    #     for feature, weight in weights:
+    #         print(
+    #             f"{feature:30} {weight:10.6f}"
+    #             f"  abs ={abs(weight):12.6f}"
+    #         )
+    
+    # save
+    model_data = {
+        'thetas': final_theta,
+        'feature_mean': model_stat['feature_mean'],
+        'feature_std': model_stat['feature_std']
+    }
+    with open("thetas.json", "w") as file:
+        js.dump(model_data, file, indent=2)
+    plt.show()
 
 
 if __name__ == "__main__":
