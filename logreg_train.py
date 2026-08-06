@@ -4,6 +4,34 @@ import numpy as np
 import json as js
 import matplotlib.pyplot as plt
 
+def ft_mean(values):
+    res = 0.0
+    count = 0
+
+    for value in values:
+        res += value
+        count += 1
+
+    if count == 0:
+        return 0
+
+    return res / count
+
+def ft_std(values, mean):
+    res = 0.0
+    count = 0
+
+    for value in values:
+        diff = value - mean
+        res += diff * diff
+        count += 1
+
+    if count == 0:
+        return 0
+    variance = res / count
+
+    return np.sqrt(variance)
+
 # z -> multi matri
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
@@ -28,7 +56,7 @@ def gradient_descent(learning_rate, theta, X, y):
 
     gradient = np.zeros((X.shape[1], 1))
     for i in range(X.shape[1]):
-        gradient[i] = np.mean(X[:, i] * err)
+        gradient[i] = ft_mean(X[:, i] * err)
     
     return theta - learning_rate * gradient
 
@@ -45,8 +73,8 @@ class logisticRegression:
         for name in data.columns:
             values = data[name]
 
-            mean_value = np.mean(values)
-            std_value = np.std(values)
+            mean_value = ft_mean(values)
+            std_value = ft_std(values, mean_value)
 
             self.feature_mean[name] = mean_value
             self.feature_std[name] = std_value
@@ -90,9 +118,6 @@ def main():
     path = sys.argv[1]
     df = pd.read_csv(path).dropna()
 
-    # feature_names = (
-    #     df.select_dtypes(include=np.number).drop(columns=["Index"]).columns
-    # )
     all_features = df.select_dtypes(include=np.number).drop(columns=["Index"]).columns
     drop_features = ["Arithmancy", "Potions", "Transfiguration", "Care of Magical Creatures"]
     selected_features = all_features.drop(drop_features)
@@ -135,7 +160,7 @@ def main():
         axes[i].set_ylabel("cost")
         axes[i].grid(True)
 
-    # feature_labels = ["bias"] + list(feature_names)
+    # feature_labels = ["bias"] + list(selected_features)
     # print("")
     # for house in houses:
     #     print(f"\n=== {house} ===")
