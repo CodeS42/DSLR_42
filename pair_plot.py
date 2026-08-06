@@ -19,6 +19,8 @@ def display_pair_plot(df):
     col_drop = ["First name", "Last name", "Birthday", "Best Hand"]
     df = df.drop(columns=col_drop, errors="ignore")
     df = df.dropna()
+    df = df.rename(columns={"Defense Against the Dark Arts": "DaDa",
+                            "Care of Magical Creatures": "Care of MC"})
 
     houses = ["Gryffindor", "Slytherin", "Hufflepuff", "Ravenclaw"]
     features = df.select_dtypes(include=["float", "int"]).columns
