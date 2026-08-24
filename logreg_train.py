@@ -35,7 +35,15 @@ def ft_std(values, mean):
     return np.sqrt(variance)
 
 
-# z -> multi matri
+def ft_clip(value, low, high):
+    if value < low:
+        return low
+    elif value > high:
+        return high
+    else:
+        return value
+
+
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
@@ -44,16 +52,24 @@ def predict(X, theta):
     return sigmoid(X @ theta)
 
 
-# m -> num samples
-# y -> target class
 def cost_function(X, y, theta):
     epsilon = 1e-15
-    m = len(X)
-    h = predict(X, theta)
-    cost = (-1/m) * np.sum(y * np.log(
-        h + epsilon) + (1 - y) * np.log(1 - h + epsilon))
+    m = X.shape[0]
+    n_features = X.shape[1]
+    total = 0.0
 
-    return cost
+    for i in range(m):
+        z = 0.0
+        for j in range(n_features):
+            z += theta[j][0] * X[i][j]
+
+        h = 1.0 / (1.0 + np.exp(-z))
+        safe_h = ft_clip(h, epsilon, 1 - epsilon)
+
+        y_i = y[i][0]
+        total += y_i * np.log(safe_h) + (1 - y_i) * np.log(1 - safe_h)
+
+    return -total / m
 
 
 def gradient_descent(learning_rate, theta, X, y):
@@ -99,9 +115,6 @@ class logisticRegression:
         X = X.to_numpy()
         y = target.to_numpy().reshape(-1, 1)
 
-        self.X_train = X
-        self.Y_train = y
-
         nb_features = X.shape[1]
         self.theta = np.zeros((nb_features, 1))
         cost_history = []
@@ -110,86 +123,74 @@ class logisticRegression:
             self.theta = gradient_descent(learning_rate, self.theta, X, y)
             if i % 200 == 0:
                 cost_history.append(cost_function(X, y, self.theta).item())
-                # cost = cost_function(X, y, self.theta).item()
-                # print(f"iteration {i:5d} | cost = {cost:.6f}")
-                # cost_history.append(cost)
 
         return cost_history
 
 
 def main():
-    if len(sys.argv) != 2:
-        raise SystemExit("Wrong number of arguments.")
+    try:
+        if len(sys.argv) != 2:
+            raise SystemExit("Usage: python logreg_train.py dataset_train.csv")
 
-    path = sys.argv[1]
-    df = pd.read_csv(path).dropna()
+        path = sys.argv[1]
+        df = pd.read_csv(path).dropna()
 
-    all_features = df.select_dtypes(
-        include=np.number).drop(columns=["Index"]).columns
-    drop_features = ["Arithmancy", "Potions",
-                     "Transfiguration", "Care of Magical Creatures"]
-    selected_features = all_features.drop(drop_features)
-    X_df = df[selected_features]
+        all_features = df.select_dtypes(
+            include=np.number).drop(columns=["Index"]).columns
+        drop_features = ["Arithmancy", "Potions",
+                         "Transfiguration", "Care of Magical Creatures"]
+        selected_features = all_features.drop(drop_features)
+        X_df = df[selected_features]
 
-    target = df["Hogwarts House"]
-    houses = [
-        "Gryffindor",
-        "Slytherin",
-        "Hufflepuff",
-        "Ravenclaw"
-    ]
+        target = df["Hogwarts House"]
+        houses = [
+            "Gryffindor",
+            "Slytherin",
+            "Hufflepuff",
+            "Ravenclaw"
+        ]
 
-    final_theta = {}
-    model_stat = {}
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-    axes = axes.ravel()
+        final_theta = {}
+        model_stat = {}
+        fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+        axes = axes.ravel()
 
-    for i, house in enumerate(houses):
-        model = logisticRegression()
-        binary_target = (target == house).astype(int)  # one vs all
+        for i, house in enumerate(houses):
+            model = logisticRegression()
+            binary_target = (target == house).astype(int)
 
-        history_cost = model.fit(
-            X_df,
-            binary_target,
-            learning_rate=0.05,
-            iterations=3000
-        )
-        final_theta[house] = model.theta.flatten().tolist()
-        if not model_stat:
-            model_stat['feature_mean'] = model.feature_mean
-            model_stat['feature_std'] = model.feature_std
+            history_cost = model.fit(
+                X_df,
+                binary_target,
+                learning_rate=0.05,
+                iterations=3000
+            )
+            final_theta[house] = model.theta.flatten().tolist()
+            if not model_stat:
+                model_stat['feature_mean'] = model.feature_mean
+                model_stat['feature_std'] = model.feature_std
 
-        axes[i].plot(
-            range(0, len(history_cost) * 300, 300),
-            history_cost
-        )
-        axes[i].set_title(f"cost function - {house}")
-        axes[i].set_xlabel("iterations")
-        axes[i].set_ylabel("cost")
-        axes[i].grid(True)
+            axes[i].plot(
+                range(0, len(history_cost) * 200, 200),
+                history_cost
+            )
+            axes[i].set_title(f"cost function - {house}")
+            axes[i].set_xlabel("iterations")
+            axes[i].set_ylabel("cost")
+            axes[i].grid(True)
 
-    # feature_labels = ["bias"] + list(selected_features)
-    # print("")
-    # for house in houses:
-    #     print(f"\n=== {house} ===")
-    #     weights = list(zip(feature_labels, final_theta[house]))
-    #     weights.sort(key=lambda x:abs(x[1]), reverse=True)
+        model_data = {
+            'thetas': final_theta,
+            'feature_mean': model_stat['feature_mean'],
+            'feature_std': model_stat['feature_std']
+        }
+        with open("thetas.json", "w") as file:
+            js.dump(model_data, file, indent=2)
+        plt.show()
 
-    #     for feature, weight in weights:
-    #         print(
-    #             f"{feature:30} {weight:10.6f}"
-    #             f"  abs ={abs(weight):12.6f}"
-    #         )
-
-    # save
-    model_data = {
-        'thetas': final_theta,
-        'feature_mean': model_stat['feature_mean'],
-        'feature_std': model_stat['feature_std']
-    }
-    with open("thetas.json", "w") as file:
-        js.dump(model_data, file, indent=2)
-    plt.show()
+    except Exception as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
