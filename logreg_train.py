@@ -138,7 +138,8 @@ def main():
         all_features = df.select_dtypes(
             include=np.number).drop(columns=["Index"]).columns
         drop_features = ["Arithmancy", "Potions",
-                         "Transfiguration", "Care of Magical Creatures"]
+                         "Transfiguration", "Care of Magical Creatures",
+                         "Astronomy"]
         selected_features = all_features.drop(drop_features)
         X_df = df[selected_features]
 
