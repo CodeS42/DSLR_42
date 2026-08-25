@@ -3,60 +3,40 @@ import pandas as pd
 import sys
 
 
-def calculate_global_means(courses_means):
+def calculate_global_mean(course_marks):
     """
-    Calculate the overall mean across all four houses for each course.
-    Returns a list of global mean values per course.
+    Calculate the global mean of all marks for a single course across all houses.
+    Returns the float mean value.
     """
-    global_means = []
-
-    for means in courses_means:
-        global_mean = sum(means) / 4
-        global_means.append(global_mean)
-
-    return global_means
+    all_marks = [mark for house in course_marks for mark in house]
+    return sum(all_marks) / len(all_marks)
 
 
-def var(course_means, global_mean):
+def var(course_marks, global_mean):
     """
-    Calculate the variance of house means relative to the global mean for a course.
+    Calculate the variance of all student marks for a single course.
     Returns the variance float value.
     """
-    return sum([(mean - global_mean) ** 2 for mean in course_means]) / 4
+    all_marks = [mark for house in course_marks for mark in house]
+    return sum([(mark - global_mean) ** 2 for mark in all_marks]) / len(all_marks)
 
 
-def std(courses_means):
+def std(marks):
     """
-    Compute the standard deviation of house means for every course.
+    Compute the standard deviation of all student marks for every course.
     Returns a list of standard deviations per course.
     """
-    global_means = calculate_global_means(courses_means)
     std_per_course = []
+    num_courses = len(marks[0])
 
-    for course_means, global_mean in zip(courses_means, global_means):
-        var_result = var(course_means, global_mean)
+    for course_i in range(num_courses):
+        course_marks = [house[course_i] for house in marks]
+        global_mean = calculate_global_mean(course_marks)
+        var_result = var(course_marks, global_mean)
         std_result = var_result ** 0.5
         std_per_course.append(std_result)
 
     return std_per_course
-
-
-def means_per_course(marks):
-    """
-    Compute the average mark for each Hogwarts house across all courses.
-    Returns a list of 4-element mean lists for each course.
-    """
-    courses_means = []
-
-    for g_course, s_course, h_course, \
-            r_course in zip(marks[0], marks[1], marks[2], marks[3]):
-        g_mean = sum(g_course) / len(g_course)
-        s_mean = sum(s_course) / len(s_course)
-        h_mean = sum(h_course) / len(h_course)
-        r_mean = sum(r_course) / len(r_course)
-        courses_means.append([g_mean, s_mean, h_mean, r_mean])
-
-    return courses_means
 
 
 def retrieve_marks(df, houses, courses):
@@ -152,7 +132,7 @@ def main():
         df = pd.read_csv("dataset_train.csv")
 
         marks = retrieve_marks(df, df.iloc[:, 1], df.iloc[:, 6:].columns)
-        std_per_course = std(means_per_course(marks))
+        std_per_course = std(marks)
         smallest_std = course_smallest_std(
             std_per_course, df.iloc[:, 6:].columns)
         course_marks = retrieve_course_marks(marks, smallest_std[1])
