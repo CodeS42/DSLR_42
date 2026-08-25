@@ -4,6 +4,10 @@ import sys
 
 
 def calculate_global_means(courses_means):
+    """
+    Calculate the overall mean across all four houses for each course.
+    Returns a list of global mean values per course.
+    """
     global_means = []
 
     for means in courses_means:
@@ -14,10 +18,18 @@ def calculate_global_means(courses_means):
 
 
 def var(course_means, global_mean):
+    """
+    Calculate the variance of house means relative to the global mean for a course.
+    Returns the variance float value.
+    """
     return sum([(mean - global_mean) ** 2 for mean in course_means]) / 4
 
 
 def std(courses_means):
+    """
+    Compute the standard deviation of house means for every course.
+    Returns a list of standard deviations per course.
+    """
     global_means = calculate_global_means(courses_means)
     std_per_course = []
 
@@ -30,6 +42,10 @@ def std(courses_means):
 
 
 def means_per_course(marks):
+    """
+    Compute the average mark for each Hogwarts house across all courses.
+    Returns a list of 4-element mean lists for each course.
+    """
     courses_means = []
 
     for g_course, s_course, h_course, \
@@ -44,6 +60,10 @@ def means_per_course(marks):
 
 
 def retrieve_marks(df, houses, courses):
+    """
+    Extract and group valid numerical marks by house for every course.
+    Returns nested lists of marks grouped by house and course.
+    """
     gryffindor_marks = []
     slytherin_marks = []
     hufflepuff_marks = []
@@ -81,6 +101,10 @@ def retrieve_marks(df, houses, courses):
 
 
 def course_smallest_std(std_per_course, courses):
+    """
+    Identify the course with the lowest standard deviation among house means.
+    Returns a tuple containing the course name and its index.
+    """
     min_std = std_per_course[0]
     course_name = (courses[0], 0)
     i = 1
@@ -95,6 +119,10 @@ def course_smallest_std(std_per_course, courses):
 
 
 def display_histogram(smallest_std, marks):
+    """
+    Plot and display a histogram of student marks for each house.
+    Renders the plot using Matplotlib.
+    """
     plt.hist(marks, label=["Gryffindor", "Slytherin",
                            "Hufflepuff", "Ravenclaw"],
              histtype="stepfilled", alpha=0.5)
@@ -106,10 +134,18 @@ def display_histogram(smallest_std, marks):
 
 
 def retrieve_course_marks(marks, course_i):
+    """
+    Extract the marks of all four houses for a single course index.
+    Returns a list of mark lists corresponding to each house.
+    """
     return [house[course_i] for house in marks]
 
 
 def main():
+    """
+    Main execution flow to load data, compute statistics, and visualize
+    the course with the most homogeneous score distribution across houses.
+    """
     try:
         if not len(sys.argv) == 1:
             raise SystemExit("Wrong number of arguments.")

@@ -5,10 +5,18 @@ import numpy as np
 
 
 def sigmoid(z):
+    """
+    Compute the sigmoid activation function for a given input array or scalar.
+    Returns values constrained between 0 and 1.
+    """
     return 1 / (1 + np.exp(-z))
 
 
 def predict():
+    """
+    Load test data and trained weights to compute class probabilities per house.
+    Normalizes features and exports the predicted house assignments to 'houses.csv'.
+    """
     df_test = pd.read_csv(sys.argv[1])
     with open(sys.argv[2]) as f:
         model = js.load(f)
@@ -41,6 +49,10 @@ def predict():
 
 
 def main():
+    """
+    Validate command-line arguments and trigger the prediction process.
+    Handles potential execution errors and exits cleanly.
+    """
     try:
         if len(sys.argv) != 3:
             raise SystemExit(

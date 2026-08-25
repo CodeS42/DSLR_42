@@ -8,6 +8,10 @@ Q3 = 3
 
 
 def ft_count(df, cols):
+    """
+    Count the number of non-null values in each column.
+    Returns a list starting with the label 'Count'.
+    """
     count_lst = ["Count"]
     for col in range(cols):
         count = 0
@@ -19,6 +23,10 @@ def ft_count(df, cols):
 
 
 def ft_mean(df, count_lst, cols):
+    """
+    Calculate the arithmetic mean for each column.
+    Returns a list starting with the label 'Mean'.
+    """
     mean_lst = ["Mean"]
     for col, nb_values in zip(range(cols), count_lst):
         result = sum(nb for nb in df.iloc[:, col]
@@ -28,6 +36,10 @@ def ft_mean(df, count_lst, cols):
 
 
 def valid_numbers(df, col):
+    """
+    Extract all non-null numerical values from a specific column.
+    Returns a list of valid numbers.
+    """
     nb_lst = []
     for nb in df.iloc[:, col]:
         if not pd.isna(nb):
@@ -36,6 +48,10 @@ def valid_numbers(df, col):
 
 
 def variance(df, mean_lst, cols):
+    """
+    Calculate the variance for each column based on its mean.
+    Returns a list of variance values.
+    """
     var_lst = []
     for col, mean in zip(range(cols), mean_lst):
         nb_lst = valid_numbers(df, col)
@@ -45,6 +61,10 @@ def variance(df, mean_lst, cols):
 
 
 def ft_std(df, mean_lst, cols):
+    """
+    Compute the standard deviation for each column.
+    Returns a list starting with the label 'Std'.
+    """
     var = variance(df, mean_lst, cols)
     std_lst = ["Std"]
     for v in var:
@@ -53,6 +73,10 @@ def ft_std(df, mean_lst, cols):
 
 
 def ft_min(df, cols):
+    """
+    Find the minimum non-null value for each column.
+    Returns a list starting with the label 'Min'.
+    """
     min_lst = ["Min"]
     for col in range(cols):
         i = 0
@@ -68,6 +92,10 @@ def ft_min(df, cols):
 
 
 def ft_quartile(df, count_lst, cols, q):
+    """
+    Compute the specified quartile (25%, 50%, or 75%) for each column.
+    Returns a list labeled with the quartile percentage.
+    """
     if q == Q1:
         quartile_lst = ["25%"]
     elif q == Q2:
@@ -92,6 +120,10 @@ def ft_quartile(df, count_lst, cols, q):
 
 
 def ft_max(df, cols):
+    """
+    Find the maximum non-null value for each column.
+    Returns a list starting with the label 'Max'.
+    """
     max_lst = ["Max"]
     for col in range(cols):
         i = 0
@@ -107,6 +139,10 @@ def ft_max(df, cols):
 
 
 def ft_nan(df, cols):
+    """
+    Count the number of missing (NaN) values in each column.
+    Returns a list starting with the label 'Nan'.
+    """
     nan_lst = ["Nan"]
     for col in range(cols):
         count = 0
@@ -118,6 +154,10 @@ def ft_nan(df, cols):
 
 
 def analyze_csv(df):
+    """
+    Compute summary statistics for all columns in the DataFrame.
+    Returns a list containing all statistical metrics.
+    """
     count_lst = ft_count(df, df.shape[1])
     mean_lst = ft_mean(df, count_lst[1:], df.shape[1])
     std_lst = ft_std(df, mean_lst[1:], df.shape[1])
@@ -133,6 +173,10 @@ def analyze_csv(df):
 
 
 def print_statistics(titles, stats):
+    """
+    Format and display the statistical results in a clean table format.
+    Prints the headers and rows to standard output.
+    """
     len_titles_lst = [None]
     print(f"{'':>10}", end="")
     for title in titles:
@@ -154,6 +198,10 @@ def print_statistics(titles, stats):
 
 
 def main():
+    """
+    Entry point of the script. Reads a CSV file from command line arguments
+    and triggers data analysis and display.
+    """
     try:
         av = sys.argv
         if not len(av) == 2:
