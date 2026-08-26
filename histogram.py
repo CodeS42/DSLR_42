@@ -1,40 +1,50 @@
+# Objectif
+#   → Repondre a la question : Parmis tous les cours, lequel possede la repartition des notes la plus homogene entre les quatre maisons?
+
+# Pour chaque matiere il faut :
+#   - regrouper les notes en fonction des maisons et calculer leur moyenne
+#   - calculer l'ecart type des moyennes de chaque maison
+#   - voir pour quelle matiere l'ecart-type est le plus bas
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import sys
 
 
-def calculate_global_mean(course_marks):
+def house_means(course_marks):
     """
-    Calculate the global mean of all marks for a single course
-    across all houses.
-    Returns the float mean value.
+    Calculate the mean mark of each of the four houses for a single course.
+    Returns a list of four float values (one mean per house).
     """
-    all_marks = [mark for house in course_marks for mark in house]
-    return sum(all_marks) / len(all_marks)
+    return [sum(house) / len(house) for house in course_marks]
 
 
-def var(course_marks, global_mean):
+def var(means, global_mean):
     """
-    Calculate the variance of all student marks for a single course.
+    Calculate the sample variance between the four house means for a single course.
     Returns the variance float value.
     """
-    all_marks = [mark for house in course_marks for mark in house]
-    return sum([(mark - global_mean) **
-                2 for mark in all_marks]) / len(all_marks)
+    return sum([(m - global_mean) ** 2 for m in means]) / (len(means) - 1)
 
 
 def std(marks):
     """
-    Compute the standard deviation of all student marks for every course.
+    Compute the standard deviation of house means for every course.
     Returns a list of standard deviations per course.
     """
     std_per_course = []
+    # Recupere le nombre de matieres
     num_courses = len(marks[0])
 
     for course_i in range(num_courses):
+        # Recupere la liste des notes de chaque maison dans une meme matiere
         course_marks = [house[course_i] for house in marks]
-        global_mean = calculate_global_mean(course_marks)
-        var_result = var(course_marks, global_mean)
+        # calcule la moyenne de chaque maison dans ce cours et renvoie la liste des moyennes
+        means = house_means(course_marks)
+        # Calcule la moyenne des 4 moyennes pour le calcul de la variance
+        #   -> La formule de la variance exige de calculer la difference entre chaque donnee et la moyenne de l'ensemble de ces donnees
+        global_mean = sum(means) / len(means)
+        var_result = var(means, global_mean)
         std_result = var_result ** 0.5
         std_per_course.append(std_result)
 
@@ -46,6 +56,9 @@ def retrieve_marks(df, houses, courses):
     Extract and group valid numerical marks by house for every course.
     Returns nested lists of marks grouped by house and course.
     """
+    # Creer une liste de 4 listes correspondant a chaque maison
+    # Chacune de ces quatre listes possede un nombre de liste egal au nombre de matieres
+    # Chacune de ces listes contient l'ensemble des notes d'une maion dans une matiere
     gryffindor_marks = []
     slytherin_marks = []
     hufflepuff_marks = []
@@ -62,6 +75,7 @@ def retrieve_marks(df, houses, courses):
             if pd.isna(mark):
                 i += 1
                 continue
+            # Conversion en float pour garantir que la donnee est exploitable pour les futurs calculs
             mark = float(mark)
             house = houses[i]
             if house == "Gryffindor":
@@ -96,7 +110,7 @@ def course_smallest_std(std_per_course, courses):
             min_std = nb
             course_name = (courses[i], i)
         i += 1
-
+    # Renvoie un tupple avec le nom de la matiere et son index dans la structure marks pour chaque maison
     return course_name
 
 
@@ -132,7 +146,6 @@ def main():
         if not len(sys.argv) == 1:
             raise SystemExit("Wrong number of arguments.")
         df = pd.read_csv("dataset_train.csv")
-
         marks = retrieve_marks(df, df.iloc[:, 1], df.iloc[:, 6:].columns)
         std_per_course = std(marks)
         smallest_std = course_smallest_std(
