@@ -14,8 +14,10 @@ def sigmoid(z):
 
 def predict():
     """
-    Load test data and trained weights to compute class probabilities per house.
-    Normalizes features and exports the predicted house assignments to 'houses.csv'.
+    Load test data and trained weights
+    to compute class probabilities per house.
+    Normalizes features and exports
+    the predicted house assignments to 'houses.csv'.
     """
     df_test = pd.read_csv(sys.argv[1])
     with open(sys.argv[2]) as f:

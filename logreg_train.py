@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 
 
 def ft_mean(values):
+    """
+    Calculate the arithmetic mean of an iterable of values.
+    """
     res = 0.0
     count = 0
 
@@ -20,6 +23,9 @@ def ft_mean(values):
 
 
 def ft_std(values, mean):
+    """
+    Calculate the standard deviation of a precomputed mean.
+    """
     res = 0.0
     count = 0
 
@@ -36,6 +42,9 @@ def ft_std(values, mean):
 
 
 def ft_clip(value, low, high):
+    """
+    Clip a value to stay within low and high.
+    """
     if value < low:
         return low
     elif value > high:
@@ -45,14 +54,25 @@ def ft_clip(value, low, high):
 
 
 def sigmoid(z):
+    """
+    Compute the sigmoid activation function for a given input.
+    Returns values constrained between 0 and 1.
+    """
     return 1 / (1 + np.exp(-z))
 
 
 def predict(X, theta):
+    """
+    Compute predicted probabilities using logistic regression weights theta.
+    """
     return sigmoid(X @ theta)
 
 
 def cost_function(X, y, theta):
+    """
+    Compute the logistic regression cost,
+    also called log loss for given weights theta.
+    """
     epsilon = 1e-15
     m = X.shape[0]
     n_features = X.shape[1]
@@ -73,6 +93,10 @@ def cost_function(X, y, theta):
 
 
 def gradient_descent(learning_rate, theta, X, y):
+    """
+    Perform gradient descent step to reduce the cost,
+    and return the updated theta.
+    """
     h = predict(X, theta)
     err = (h - y).reshape(-1)
 
@@ -84,12 +108,21 @@ def gradient_descent(learning_rate, theta, X, y):
 
 
 class logisticRegression:
+    """
+    Class for logistic regression classifier.
+    """
     def __init__(self):
+        """
+        Initialize model weights and feature scaling parameters.
+        """
         self.theta = None
         self.feature_mean = {}
         self.feature_std = {}
 
     def standardize(self, data):
+        """
+        Standardize features and store parameters.
+        """
         standard = {}
 
         for name in data.columns:
@@ -109,6 +142,9 @@ class logisticRegression:
         return pd.DataFrame(standard)
 
     def fit(self, features, target, learning_rate=0.1, iterations=10000):
+        """
+        Train the model using gradient descent and return the cost history.
+        """
         X = self.standardize(features)
         X.insert(0, "bias", 1)
 
@@ -128,6 +164,10 @@ class logisticRegression:
 
 
 def main():
+    """
+    Train one vs all logistic regression models per house,
+    and save thetas to json file.
+    """
     try:
         if len(sys.argv) != 2:
             raise SystemExit("Usage: python logreg_train.py dataset_train.csv")

@@ -5,7 +5,8 @@ import sys
 
 def calculate_global_mean(course_marks):
     """
-    Calculate the global mean of all marks for a single course across all houses.
+    Calculate the global mean of all marks for a single course
+    across all houses.
     Returns the float mean value.
     """
     all_marks = [mark for house in course_marks for mark in house]
@@ -18,7 +19,8 @@ def var(course_marks, global_mean):
     Returns the variance float value.
     """
     all_marks = [mark for house in course_marks for mark in house]
-    return sum([(mark - global_mean) ** 2 for mark in all_marks]) / len(all_marks)
+    return sum([(mark - global_mean) **
+                2 for mark in all_marks]) / len(all_marks)
 
 
 def std(marks):

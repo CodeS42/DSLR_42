@@ -14,13 +14,20 @@ house_colors = {
 
 
 def display_pair_plot(df):
+    """
+    Display a pair plot of all numeric features of dataset.
+    Show a histogram on the diagonal (distribution per feature)
+    and scatter plots off diagonal (feature vs feature) for each house.
+    """
     label_col = "Hogwarts House"
 
     col_drop = ["First name", "Last name", "Birthday", "Best Hand"]
     df = df.drop(columns=col_drop, errors="ignore")
     df = df.dropna()
     df = df.rename(columns={"Defense Against the Dark Arts": "DaDa",
-                            "Care of Magical Creatures": "Care of MC"})
+                            "Care of Magical Creatures": "Care of MC",
+                            "Muggle Studies": "MS",
+                            "History of Magic": "HoM"})
 
     houses = ["Gryffindor", "Slytherin", "Hufflepuff", "Ravenclaw"]
     features = df.select_dtypes(include=["float", "int"]).columns
@@ -63,6 +70,10 @@ def display_pair_plot(df):
 
 
 def main():
+    """
+    Main execution to load data.
+    Display pair plot featuring all numeric features of the dataset.
+    """
     try:
         if not len(sys.argv) == 1:
             raise SystemExit("Wrong number of arguments.")

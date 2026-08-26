@@ -12,6 +12,9 @@ house_colors = {
 
 
 def ft_corr(x, y):
+    """
+    Compute the Pearson correlation coefficient between two data series.
+    """
     valid_pair = [(x_val, y_val) for x_val, y_val in zip(x, y)
                   if pd.notna(x_val) and pd.notna(y_val)]
     pairs = len(valid_pair)
@@ -34,23 +37,24 @@ def ft_corr(x, y):
 
 
 def display_scatter_plot(df):
+    """
+    Display a scatter plot of student marks of each house
+    for the two features that are most correlated.
+    """
     label_col = "Hogwarts House"
     num_col = df.select_dtypes(include=["float", "int"]).columns.tolist()
     if "Index" in num_col:
         num_col.remove("Index")
 
     corr_max = 0
-    # corr_max = -1
     feature_corr = None
     for i in range(len(num_col)):
         for j in range(i + 1, len(num_col)):
             f1, f2 = num_col[i], num_col[j]
             corr_val = ft_corr(df[f1], df[f2])
-            # if corr_val > corr_max:
             if abs(corr_val) > corr_max:
                 corr_max = abs(corr_val)
                 feature_corr = (f1, f2)
-            # print(f"{f1} vs {f2} | corr: {corr_val:0.5f}")
 
     plt.figure(figsize=(10, 8))
     for house in df[label_col].unique():
@@ -68,6 +72,9 @@ def display_scatter_plot(df):
 
 
 def main():
+    """
+    Main execution to load data and display the scatter plot.
+    """
     try:
         if not len(sys.argv) == 1:
             raise SystemExit("Wrong number of arguments.")
