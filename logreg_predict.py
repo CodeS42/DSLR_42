@@ -49,7 +49,7 @@ def predict():
             df_notes[course_name] = (notes - mean)
         else:
             df_notes[course_name] = (notes - mean) / std
-    # Insere une premiere colonne nommee bias remplie de 1 pour que le dataframe ait le meme nombre de colonnes que thetas_list pour les calculs
+    # Insere une premiere colonne nommee bias remplie de 1 pour permettre le produit matriciel avec thetas_list
     df_notes.insert(0, "bias", 1)
     probabilities = {}
     # Parcourt les 4 modeles entraines 
@@ -58,13 +58,13 @@ def predict():
         # Multiplie chaque note de l'élève par le poids de la matière correspondante, 
         # y ajoute le biais, puis additionne le tout pour obtenir son score global de compatibilité.
         z = np.dot(df_notes, theta_list)
-        # Transforme le score de compatibilite en pourcentage en le ramenant entre 0 et 1 et l'enregistre dans un dictionnaire
+        # Transforme le score de compatibilite en probabilite comprise entre 0 et 1 et l'enregistre dans un dictionnaire
         probabilities[house] = sigmoid(z)
     # Transforme le dictionnaire en DataFrame
     #     -> 4 colonnes: une pour chaque maison
     #     -> chaque ligne correspond a un eleve, et contient ses 4 probabilites
     df_probabilities = pd.DataFrame(probabilities)
-    # Cherche pour chaque ligne du DF de probabilites le chiffre le plus eleve,
+    # Cherche pour chaque ligne du DF de probabilites la probabilite la plus elevee,
     # extrait le nom de la colonne correspondante (la maison) et l'enregistre dans 
     # la colonne de la maison du DF de test
     df_test["Hogwarts House"] = df_probabilities.idxmax(axis=1)
