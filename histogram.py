@@ -1,5 +1,7 @@
 # Objectif
-#   → Repondre a la question : Parmis tous les cours, lequel possede la repartition des notes la plus homogene entre les quatre maisons?
+#   → Repondre a la question : Parmis tous les cours,
+#   lequel possede la repartition des notes
+#   la plus homogene entre les quatre maisons?
 
 # Pour chaque matiere il faut :
 #   - regrouper les notes en fonction des maisons et calculer leur moyenne
@@ -21,7 +23,8 @@ def house_means(course_marks):
 
 def var(means, global_mean):
     """
-    Calculate the sample variance between the four house means for a single course.
+    Calculate the sample variance
+        between the four house means for a single course.
     Returns the variance float value.
     """
     return sum([(m - global_mean) ** 2 for m in means]) / (len(means) - 1)
@@ -39,10 +42,12 @@ def std(marks):
     for course_i in range(num_courses):
         # Recupere la liste des notes de chaque maison dans une meme matiere
         course_marks = [house[course_i] for house in marks]
-        # calcule la moyenne de chaque maison dans ce cours et renvoie la liste des moyennes
+        # calcule la moyenne de chaque maison dans ce cours
+        #   et renvoie la liste des moyennes
         means = house_means(course_marks)
         # Calcule la moyenne des 4 moyennes pour le calcul de la variance
-        #   -> La formule de la variance exige de calculer la difference entre chaque donnee et la moyenne de l'ensemble de ces donnees
+        #   -> La formule de la variance exige de calculer la difference
+        #   entre chaque donnee et la moyenne de l'ensemble de ces donnees
         global_mean = sum(means) / len(means)
         var_result = var(means, global_mean)
         std_result = var_result ** 0.5
@@ -57,8 +62,10 @@ def retrieve_marks(df, houses, courses):
     Returns nested lists of marks grouped by house and course.
     """
     # Creer une liste de 4 listes correspondant a chaque maison
-    # Chacune de ces quatre listes possede un nombre de liste egal au nombre de matieres
-    # Chacune de ces listes contient l'ensemble des notes d'une maion dans une matiere
+    # Chacune de ces quatre listes possede
+    #   un nombre de liste egal au nombre de matieres
+    # Chacune de ces listes contient
+    #   l'ensemble des notes d'une maion dans une matiere
     gryffindor_marks = []
     slytherin_marks = []
     hufflepuff_marks = []
@@ -75,7 +82,8 @@ def retrieve_marks(df, houses, courses):
             if pd.isna(mark):
                 i += 1
                 continue
-            # Conversion en float pour garantir que la donnee est exploitable pour les futurs calculs
+            # Conversion en float pour garantir
+            #   que la donnee est exploitable pour les futurs calculs
             mark = float(mark)
             house = houses[i]
             if house == "Gryffindor":
@@ -110,7 +118,8 @@ def course_smallest_std(std_per_course, courses):
             min_std = nb
             course_name = (courses[i], i)
         i += 1
-    # Renvoie un tupple avec le nom de la matiere et son index dans la structure marks pour chaque maison
+    # Renvoie un tupple avec le nom de la matiere
+    #   et son index dans la structure marks pour chaque maison
     return course_name
 
 
